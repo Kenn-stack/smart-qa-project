@@ -15,3 +15,11 @@ class FileNotFound(BaseException):
 class FolderNotFound(BaseException):
     """Raised when folder not at specified path"""
     pass
+    
+class MaxRetriesExceeded(BaseException):
+    """raised after MAX_RETRIES is exceeded"""
+    pass
+    
+class JSONParseError(BaseException):
+    """raised when a json parsing error occurs"""
+    pass
