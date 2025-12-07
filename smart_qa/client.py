@@ -35,7 +35,7 @@ class LLMClient:
                 response = self.client.models.generate_content(**kwargs)
                 response = response.text
                 return response
-            except errors.GenAIAPIError as err:
+            except errors.APIError as err:
                 logger.warning(
                     {
                         "status": f"{err.status_code}",
@@ -50,9 +50,9 @@ class LLMClient:
                     time.sleep(sleep_time)
                     continue
 
-            except errors.GenAIConnectionError as err:
+            except ConnectionError:
                 sleep_time = backoff_factor * (2**attempt)
-                logger.warning(f"{err.message}. Retrying in {sleep_time:.1f}s ...")
+                logger.warning(f"There is a problem with your internet connection. Retrying in {sleep_time:.1f}s ...")
                 time.sleep(sleep_time)
                 continue
 
