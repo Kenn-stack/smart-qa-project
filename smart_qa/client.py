@@ -38,14 +38,14 @@ class LLMClient:
             except errors.APIError as err:
                 logger.warning(
                     {
-                        "status": f"{err.status_code}",
+                        "status": f"{err.code}",
                         "message": f"{err.message}. Retrying...",
                     }
                 )
-                if 500 <= err.status_code < 600 or err.status_code in (429, 403):
+                if 500 <= err.code < 600 or err.code in (429, 403):
                     sleep_time = backoff_factor * (2**attempt)
                     logger.warning(
-                        f"{err.message}. {err.status_code}. Retrying in {sleep_time:.1f}s ..."
+                        f"{err.message}. {err.code}. Retrying in {sleep_time:.1f}s ..."
                     )
                     time.sleep(sleep_time)
                     continue
@@ -94,22 +94,22 @@ class LLMClient:
                 response = chat.send_message(question)
                 response = response.text
                 return response
-            except errors.GenAIAPIError as err:
+            except errors.APIError as err:
                 logger.warning(
                     {
-                        "status": f"{err.status_code}",
+                        "status": f"{err.code}",
                         "message": f"{err.message}. Retrying...",
                     }
                 )
-                if 500 <= err.status_code < 600 or err.status_code in (429, 403):
+                if 500 <= err.code < 600 or err.code in (429, 403):
                     sleep_time = backoff_factor * (2**attempt)
                     logger.warning(
-                        f"{err.message}. {err.status_code}. Retrying in {sleep_time:.1f}s ..."
+                        f"{err.message}. {err.code}. Retrying in {sleep_time:.1f}s ..."
                     )
                     time.sleep(sleep_time)
                     continue
 
-            except errors.GenAIException as err:
+            except errors.ConnectionError as err:
                 sleep_time = backoff_factor * (2**attempt)
                 logger.warning(f"{err.message}. Retrying in {sleep_time:.1f}s ...")
                 time.sleep(sleep_time)

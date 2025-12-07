@@ -11,7 +11,7 @@ from smart_qa.custom_exceptions import JSONParseError, MaxRetriesExceeded
 # -------------------------------------------------------------------
 def test_make_request_success(mocker, llm_client):
     mock = mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         return_value=mocker.Mock(text="OK!")
     )
 
@@ -22,10 +22,10 @@ def test_make_request_success(mocker, llm_client):
 
 def test_make_request_retries_then_success(mocker, llm_client):
     # First two calls raise 429, last one succeeds
-    error = errors.APIError(status_code=429, message="Rate limit")
+    error = errors.APIError(429, {"message":"Rate limit"})
 
     mock = mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         side_effect=[error, error, mocker.Mock(text="finally")]
     )
 
@@ -35,10 +35,10 @@ def test_make_request_retries_then_success(mocker, llm_client):
 
 
 def test_make_request_exceeds_max_retries(mocker, llm_client):
-    error = errors.APIError(status_code=500, message="Server error")
+    error = errors.APIError(500, {"message":"Server error"})
 
     mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         side_effect=[error, error, error]
     )
 
@@ -51,7 +51,7 @@ def test_make_request_exceeds_max_retries(mocker, llm_client):
 # -------------------------------------------------------------------
 def test_summarize_cached(mocker, llm_client):
     mock = mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         return_value=mocker.Mock(text="Summary!")
     )
 
@@ -86,7 +86,7 @@ def test_create_chat_cached(mock_chat_create, llm_client):
 def test_ask_retry_success(mocker, llm_client):
     fake_chat = mocker.Mock()
 
-    error = errors.APIError(status_code=429, message="Rate limit")
+    error = errors.APIError(429, {"message":"Rate limit"})
     fake_chat.send_message.side_effect = [
         error,
         mocker.Mock(text="Answer")
@@ -100,7 +100,7 @@ def test_ask_retry_success(mocker, llm_client):
 def test_ask_retry_failure(mocker, llm_client):
     fake_chat = mocker.Mock()
 
-    error = errors.APIError(status_code=500, message="Server error")
+    error = errors.APIError(500, {"message":"Server error"})
     fake_chat.send_message.side_effect = [error, error, error]
 
     with pytest.raises(MaxRetriesExceeded):
@@ -112,7 +112,7 @@ def test_ask_retry_failure(mocker, llm_client):
 # -------------------------------------------------------------------
 def test_extract_entities_valid_json(mocker, llm_client):
     mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         return_value=mocker.Mock(text='{"name": "Ekene"}')
     )
 
@@ -122,7 +122,7 @@ def test_extract_entities_valid_json(mocker, llm_client):
 
 def test_extract_entities_cached(mocker, llm_client):
     mock = mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         return_value=mocker.Mock(text='{"age": 8}')
     )
 
@@ -140,7 +140,7 @@ def test_extract_entities_cached(mocker, llm_client):
 # -------------------------------------------------------------------
 def test_extract_entities_bad_json(mocker, llm_client):
     mocker.patch(
-        "google.genai.models.ModelsService.generate_content",
+        "google.genai.models.Models.generate_content",
         return_value=mocker.Mock(text="NOT JSON")
     )
 
