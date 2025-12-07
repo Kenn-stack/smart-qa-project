@@ -18,7 +18,7 @@ def mock_chat_send(mocker):
 @pytest.fixture
 def mock_chat_create(mocker):
     """Mock client.chats.create"""
-    return mocker.patch("google.genai.chats.ChatsService.create")
+    return mocker.patch("google.genai.chats.Chats.create")
 
 
 @pytest.fixture
